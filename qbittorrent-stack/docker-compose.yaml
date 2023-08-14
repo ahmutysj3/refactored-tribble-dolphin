@@ -1,0 +1,63 @@
+version: "2.1"
+services:
+  qbittorrentvpn:
+      image: markusmcnugen/qbittorrentvpn
+      container_name: qbittorrentvpn
+      privileged: true
+      environment:
+        - PUID=1000
+        - PGID=1000
+        #- VPN_USERNAME=
+        #- VPN_PASSWORD=
+        - WEBUI_PORT_ENV=8080
+        - INCOMING_PORT_ENV=8999
+        - VPN_ENABLED=yes
+        - LAN_NETWORK=10.0.0.0/24
+        - NAME_SERVERS=8.8.8.8,8.8.4.4
+      ports:
+        - 8080:8080
+        - 8999:8999
+        - 8999:8999/udp
+      volumes:
+        - /etc/qbittorrentvpn/config:/config
+        - /mnt/data/torrents:/torrents
+      restart: unless-stopped 
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /etc/sonarr:/config
+      - /mnt/data:/data 
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /etc/radarr:/config
+      - /mnt/data:/data 
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+      - AUTO_UPDATE=true #optional
+    volumes:
+      - /etc/jackett:/config
+    ports:
+      - 9117:9117
+    restart: unless-stopped
